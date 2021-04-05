@@ -14,16 +14,44 @@ import UIKit
 extension SwiftyMarkdown {
     
     func font( for line : SwiftyLine, characterOverride : CharacterStyle? = nil ) -> UIFont {
-        let textStyle : UIFont.TextStyle
-        var fontName : String?
-        var fontSize : CGFloat?
+        var lineProperties: LineStyles? {
+            didSet {
+                if oldValue?.fontSize != nil && lineProperties?.fontSize == nil {
+                    lineProperties?.fontSize = oldValue?.fontSize
+                }
+                if oldValue?.fontStyle != nil && lineProperties?.fontStyle == nil {
+                    lineProperties?.fontStyle = oldValue?.fontStyle
+                }
+                if oldValue?.fontName != nil && lineProperties?.fontName == nil {
+                    lineProperties?.fontName = oldValue?.fontName
+                }
+            }
+        }
+        
+        var textStyle = UIFont.TextStyle.body
+        var fontName : String? {
+            didSet {
+                if oldValue != nil && fontName == nil {
+                    fontName = oldValue
+                }
+            }
+        }
+        var fontSize : CGFloat? {
+            didSet {
+                if oldValue != nil && fontSize == nil {
+                    fontSize = oldValue
+                }
+            }
+        }
+        var style: LineStyles?
+        var font : UIFont = UIFont.init()
         
         var globalBold = false
         var globalItalic = false
         
-        let style : FontProperties
         // What type are we and is there a font name set?
-        switch line.lineStyle as! MarkdownLineStyle {
+        line.lineStyle.reversed().forEach { markdownLineStyle in
+        switch markdownLineStyle as! MarkdownLineStyle {
         case .h1:
             style = self.h1
             if #available(iOS 9, *) {
@@ -55,7 +83,6 @@ extension SwiftyMarkdown {
             style = self.h6
             textStyle = UIFont.TextStyle.footnote
         case .codeblock:
-            style = self.code
             textStyle = UIFont.TextStyle.body
         case .blockquote:
             style = self.blockquotes
@@ -65,9 +92,9 @@ extension SwiftyMarkdown {
             textStyle = UIFont.TextStyle.body
         }
         
-        fontName = style.fontName
-        fontSize = style.fontSize
-        switch style.fontStyle {
+        fontName = style?.fontName
+        fontSize = style?.fontSize
+        switch style?.fontStyle ?? LineStyles.shared.fontStyle! {
         case .bold:
             globalBold = true
         case .italic:
@@ -106,9 +133,9 @@ extension SwiftyMarkdown {
                 break
             }
         }
-        
+    
         fontSize = fontSize == 0.0 ? nil : fontSize
-        var font : UIFont
+
         if let existentFontName = fontName {
             font = UIFont.preferredFont(forTextStyle: textStyle)
             let finalSize : CGFloat
@@ -135,6 +162,9 @@ extension SwiftyMarkdown {
             }
         } else {
             font = UIFont.preferredFont(forTextStyle: textStyle)
+            if let fontSize = fontSize {
+                font = font.withSize(fontSize)
+            }
         }
         
         if globalItalic, let italicDescriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
@@ -143,6 +173,7 @@ extension SwiftyMarkdown {
         if globalBold, let boldDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
             font = UIFont(descriptor: boldDescriptor, size: 0)
         }
+    }
         
         return font
         
@@ -163,33 +194,44 @@ extension SwiftyMarkdown {
     }
     
     func color( for line : SwiftyLine ) -> UIColor {
-        // What type are we and is there a font name set?
-        switch line.lineStyle as! MarkdownLineStyle {
-        case .yaml:
-            return body.color
-        case .h1, .previousH1:
-            return h1.color
-        case .h2, .previousH2:
-            return h2.color
-        case .h3:
-            return h3.color
-        case .h4:
-            return h4.color
-        case .h5:
-            return h5.color
-        case .h6:
-            return h6.color
-        case .body:
-            return body.color
-        case .codeblock:
-            return code.color
-        case .blockquote:
-            return blockquotes.color
-        case .unorderedList, .unorderedListIndentFirstOrder, .unorderedListIndentSecondOrder, .orderedList, .orderedListIndentFirstOrder, .orderedListIndentSecondOrder:
-            return body.color
-        case .referencedLink:
-            return link.color
+        var color: UIColor? {
+            didSet {
+                if oldValue != nil && color == nil {
+                    color = oldValue
+                }
+            }
         }
+        // What type are we and is there a font name set?
+        line.lineStyle.reversed().forEach { markdownLineStyle in
+            switch markdownLineStyle as! MarkdownLineStyle  {
+            case .yaml:
+                color = body.color
+            case .h1, .previousH1:
+                color = h1.color
+            case .h2, .previousH2:
+                color = h2.color
+            case .h3:
+                color = h3.color
+            case .h4:
+                color = h4.color
+            case .h5:
+                color = h5.color
+            case .h6:
+                color = h6.color
+            case .body:
+                color = body.color
+            case .codeblock:
+                color = code.color
+            case .blockquote:
+                color = blockquotes.color
+            case .unorderedList, .unorderedListIndentFirstOrder, .unorderedListIndentSecondOrder, .orderedList, .orderedListIndentFirstOrder, .orderedListIndentSecondOrder:
+                color = body.color
+            case .referencedLink:
+                color = link.color
+            }
+        }
+        
+        return color ?? LineStyles.shared.color!
     }
     
 }

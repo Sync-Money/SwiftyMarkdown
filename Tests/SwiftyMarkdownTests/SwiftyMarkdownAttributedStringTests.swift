@@ -27,8 +27,6 @@ A more *complicated* example. This one has **it all**. Here is a [link](http://v
 		let md = SwiftyMarkdown(string: string)
 		let attributedString = md.attributedString()
 		
-		XCTAssertNotNil(attributedString)
-		
 		XCTAssertEqual(attributedString.string, "Heading 1\n\nA more complicated example. This one has it all. Here is a link.\n\nHeading 2\n\nHeading 3\n\nThis one is a blockquote")
 		
 		
