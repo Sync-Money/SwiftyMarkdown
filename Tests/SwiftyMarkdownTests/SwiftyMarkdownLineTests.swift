@@ -68,7 +68,7 @@ class SwiftyMarkdownTests: XCTestCase {
 		smd = SwiftyMarkdown(string:heading8.input )
 		XCTAssertEqual(smd.attributedString().string, heading8.expectedOutput)
 		
-		let heading9 = StringTest(input: "    # Heading 1", expectedOutput: "# Heading 1")
+		let heading9 = StringTest(input: "    # Heading 1", expectedOutput: "Heading 1")
 		smd = SwiftyMarkdown(string:heading9.input )
 		XCTAssertEqual(smd.attributedString().string, heading9.expectedOutput)
 
