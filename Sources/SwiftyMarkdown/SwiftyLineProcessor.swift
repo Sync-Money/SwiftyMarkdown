@@ -161,7 +161,7 @@ public class SwiftyLineProcessor {
         }
         let previousLines = lineRules.filter({ $0.changeAppliesTo == .previous })
 
-        guard let lineStyles = getLineStyle(text, currentRules: []) else {
+        guard let lineStyles = getLineStyle(text, currentRules: []), !lineStyles.1.isEmpty  else {
             for element in previousLines {
                 let output = (element.shouldTrim) ? text.trimmingCharacters(in: .whitespaces) : text
                 let charSet = CharacterSet(charactersIn: element.token )
